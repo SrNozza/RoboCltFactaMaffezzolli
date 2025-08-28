@@ -1,0 +1,12 @@
+[phases.setup]
+nixPkgs = ['ruby_3_0', 'bundler']
+
+[phases.install]
+cmds = ['bundle install']
+
+[phases.build]
+cmds = ['echo "Build completed"']
+
+[start]
+cmd = 'ruby app.rb'
+
