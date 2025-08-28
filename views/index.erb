@@ -1,0 +1,1032 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Robô de Simulação Maffezzolli CLT Facta</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #000000;
+            color: #ffffff;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%);
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid #333;
+            position: relative;
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo {
+            height: 50px;
+            width: auto;
+        }
+
+        .title {
+            color: #DAA520;
+            font-size: 1.8em;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .notifications {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .notification {
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-weight: 500;
+            font-size: 14px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .notification.success {
+            background: #27AE60;
+            color: white;
+        }
+
+        .notification.error {
+            background: #E74C3C;
+            color: white;
+        }
+
+        .notification.warning {
+            background: #F39C12;
+            color: white;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            padding: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .panel {
+            background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+            border-radius: 12px;
+            padding: 25px;
+            border: 1px solid #333;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .panel h3 {
+            color: #DAA520;
+            margin-bottom: 20px;
+            font-size: 1.2em;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .panel h3::before {
+            font-size: 1.1em;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #DAA520;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #444;
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.05);
+            color: #ffffff;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            border-color: #DAA520;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(218, 165, 32, 0.1);
+        }
+
+        textarea.form-control {
+            min-height: 120px;
+            resize: vertical;
+            font-family: 'Courier New', monospace;
+            line-height: 1.4;
+        }
+
+        .cpf-count {
+            color: #DAA520;
+            font-size: 13px;
+            margin-top: 5px;
+        }
+
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 500;
+            cursor: pointer;
+            margin: 4px;
+            transition: all 0.3s ease;
+            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #DAA520, #FFD700);
+            color: #000;
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #6c757d, #868e96);
+            color: white;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #28a745, #34ce57);
+            color: white;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #dc3545, #e4606d);
+            color: white;
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #ffc107, #ffcd39);
+            color: #000;
+        }
+
+        .btn-info {
+            background: linear-gradient(135deg, #17a2b8, #3dd5f3);
+            color: white;
+        }
+
+        .btn-purple {
+            background: linear-gradient(135deg, #6f42c1, #8a63d2);
+            color: white;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 100%);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            border: 1px solid #444;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+        }
+
+        .stat-card.total {
+            border-left: 4px solid #DAA520;
+        }
+
+        .stat-card.processed {
+            border-left: 4px solid #17a2b8;
+        }
+
+        .stat-card.success {
+            border-left: 4px solid #28a745;
+        }
+
+        .stat-card.error {
+            border-left: 4px solid #dc3545;
+        }
+
+        .stat-number {
+            font-size: 2.2em;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .stat-number.total {
+            color: #DAA520;
+        }
+
+        .stat-number.processed {
+            color: #17a2b8;
+        }
+
+        .stat-number.success {
+            color: #28a745;
+        }
+
+        .stat-number.error {
+            color: #dc3545;
+        }
+
+        .stat-label {
+            color: #ccc;
+            font-size: 0.9em;
+            font-weight: 500;
+        }
+
+        .results-section {
+            grid-column: 1 / -1;
+        }
+
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .results-count {
+            color: #ccc;
+            font-size: 14px;
+        }
+
+        .btn-clear {
+            background: linear-gradient(135deg, #6c757d, #868e96);
+            color: white;
+            padding: 8px 16px;
+            font-size: 12px;
+        }
+
+        .results-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid #444;
+        }
+
+        .results-table th {
+            background: linear-gradient(135deg, #DAA520, #FFD700);
+            color: #000;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 13px;
+            text-transform: uppercase;
+        }
+
+        .results-table td {
+            padding: 12px;
+            border-bottom: 1px solid #333;
+            font-size: 14px;
+        }
+
+        .results-table tr:hover {
+            background: rgba(218, 165, 32, 0.1);
+        }
+
+        .results-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .status-success {
+            color: #28a745;
+            font-weight: 600;
+        }
+
+        .status-error {
+            color: #dc3545;
+            font-weight: 600;
+        }
+
+        .status-pending {
+            color: #ffc107;
+            font-weight: 600;
+        }
+
+        .empty-state {
+            text-align: center;
+            color: #666;
+            font-style: italic;
+            padding: 40px 20px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 15px 0;
+            border: 1px solid #444;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #DAA520, #FFD700);
+            width: 0%;
+            transition: width 0.5s ease;
+            border-radius: 9px;
+        }
+
+        .log-area {
+            background: #000;
+            border: 1px solid #444;
+            border-radius: 6px;
+            padding: 15px;
+            height: 200px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            color: #00ff00;
+            line-height: 1.4;
+        }
+
+        .log-area::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .log-area::-webkit-scrollbar-track {
+            background: #1a1a1a;
+        }
+
+        .log-area::-webkit-scrollbar-thumb {
+            background: #DAA520;
+            border-radius: 4px;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+            border-top: 1px solid #333;
+            margin-top: 40px;
+            font-size: 14px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: 1fr;
+                padding: 15px;
+            }
+            
+            .header {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+            
+            .title {
+                font-size: 1.5em;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .notifications {
+                position: relative;
+                top: auto;
+                right: auto;
+                margin-bottom: 20px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .panel {
+                padding: 20px;
+            }
+            
+            .btn {
+                padding: 10px 16px;
+                font-size: 13px;
+            }
+            
+            .stat-number {
+                font-size: 1.8em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <img src="/logo.png" alt="Maffezzolli" class="logo">
+        <h1 class="title">Robô de Simulação Maffezzolli CLT Facta</h1>
+    </div>
+
+    <div class="status-bar">
+        <span id="connection-status" class="status connecting">Verificando conexão...</span>
+        <span class="status" style="background: #17a2b8; color: white;">Ruby/Sinatra</span>
+        <span class="status" style="background: #6f42c1; color: white;">API Facta Integrada</span>
+    </div>
+
+    <div class="container">
+        <div class="panel">
+            <h3>⚙️ Configurações</h3>
+            
+            <div class="form-group">
+                <label for="cpf-list">Lista de CPFs</label>
+                <textarea id="cpf-list" class="form-control" placeholder="Digite os CPFs, um por linha:&#10;813.582.371-15&#10;814.000.632-72&#10;815.142.980-15">81358237115
+81400063272
+81514298015</textarea>
+            </div>
+
+            <div class="form-group">
+                <label>CPFs válidos inseridos: <span id="cpf-count">3</span></label>
+            </div>
+
+            <div class="form-group">
+                <label for="schedule-time">Agendar Início</label>
+                <input type="datetime-local" id="schedule-time" class="form-control">
+                <small style="color: #ccc;">Deixe em branco para executar imediatamente</small>
+            </div>
+        </div>
+
+        <div class="panel">
+            <h3>📊 Estatísticas</h3>
+            
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number" id="stat-total" style="color: #DAA520;">0</div>
+                    <div class="stat-label">Total</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="stat-processed" style="color: #17a2b8;">0</div>
+                    <div class="stat-label">Processados</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="stat-success" style="color: #28a745;">0</div>
+                    <div class="stat-label">Sucessos</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="stat-errors" style="color: #dc3545;">0</div>
+                    <div class="stat-label">Erros</div>
+                </div>
+            </div>
+
+            <div class="progress-bar">
+                <div class="progress-fill" id="progress-fill"></div>
+            </div>
+        </div>
+
+        <div class="panel">
+            <h3>🎛️ Controles</h3>
+            
+            <button id="btn-start" class="btn btn-primary">▶️ Iniciar Simulação</button>
+            <button id="btn-pause" class="btn btn-warning" disabled>⏸️ Pausar</button>
+            <button id="btn-stop" class="btn btn-danger" disabled>⏹️ Parar</button>
+            <button id="btn-schedule" class="btn btn-secondary">⏰ Agendar</button>
+            <button id="btn-export" class="btn btn-success">📊 Exportar Excel</button>
+        </div>
+
+        <div class="panel">
+            <h3>📋 Log de Atividades</h3>
+            <div id="log-area" class="log-area">
+                Sistema iniciado - Aguardando comandos...<br>
+            </div>
+        </div>
+    </div>
+
+    <div class="panel" style="max-width: 1400px; margin: 20px auto;">
+        <h3>📈 Resultados</h3>
+        
+        <table class="results-table">
+            <thead>
+                <tr>
+                    <th>CPF</th>
+                    <th>Nome</th>
+                    <th>Status</th>
+                    <th>Renda</th>
+                    <th>Margem</th>
+                    <th>Elegível</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody id="results-tbody">
+                <tr>
+                    <td colspan="7" style="text-align: center; color: #666; padding: 40px;">
+                        Nenhum resultado ainda. Execute uma simulação para ver os dados.
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="footer">
+        <p>🦁 Made with Manus | Robô Maffezzolli CLT Facta | Ruby/Sinatra</p>
+    </div>
+
+    <script>
+        // Estado da aplicação
+        let isRunning = false;
+        let isPaused = false;
+        let currentResults = [];
+        let stats = { total: 0, processed: 0, success: 0, errors: 0 };
+        let currentCpfIndex = 0;
+        let cpfList = [];
+
+        // Elementos DOM
+        const connectionStatus = document.getElementById('connection-status');
+        const cpfListTextarea = document.getElementById('cpf-list');
+        const cpfCount = document.getElementById('cpf-count');
+        const logArea = document.getElementById('log-area');
+        const resultsTable = document.getElementById('results-tbody');
+        const progressFill = document.getElementById('progress-fill');
+
+        // Botões
+        const btnStart = document.getElementById('btn-start');
+        const btnPause = document.getElementById('btn-pause');
+        const btnStop = document.getElementById('btn-stop');
+        const btnSchedule = document.getElementById('btn-schedule');
+        const btnExport = document.getElementById('btn-export');
+
+        // Estatísticas
+        const statTotal = document.getElementById('stat-total');
+        const statProcessed = document.getElementById('stat-processed');
+        const statSuccess = document.getElementById('stat-success');
+        const statErrors = document.getElementById('stat-errors');
+
+        // Chaves do localStorage
+        const STORAGE_KEYS = {
+            results: 'maffezzolli_results',
+            progress: 'maffezzolli_progress',
+            cpfList: 'maffezzolli_cpf_list',
+            stats: 'maffezzolli_stats'
+        };
+
+        // Função para salvar no localStorage
+        function saveToStorage() {
+            try {
+                localStorage.setItem(STORAGE_KEYS.results, JSON.stringify(currentResults));
+                localStorage.setItem(STORAGE_KEYS.progress, JSON.stringify({
+                    currentCpfIndex: currentCpfIndex,
+                    isRunning: isRunning,
+                    isPaused: isPaused
+                }));
+                localStorage.setItem(STORAGE_KEYS.cpfList, JSON.stringify(cpfList));
+                localStorage.setItem(STORAGE_KEYS.stats, JSON.stringify(stats));
+            } catch (e) {
+                console.error('Erro ao salvar no localStorage:', e);
+            }
+        }
+
+        // Função para carregar do localStorage
+        function loadFromStorage() {
+            try {
+                const savedResults = localStorage.getItem(STORAGE_KEYS.results);
+                const savedProgress = localStorage.getItem(STORAGE_KEYS.progress);
+                const savedCpfList = localStorage.getItem(STORAGE_KEYS.cpfList);
+                const savedStats = localStorage.getItem(STORAGE_KEYS.stats);
+
+                if (savedResults) {
+                    currentResults = JSON.parse(savedResults);
+                    displayResults(currentResults);
+                }
+
+                if (savedProgress) {
+                    const progress = JSON.parse(savedProgress);
+                    currentCpfIndex = progress.currentCpfIndex || 0;
+                    
+                    // Se havia uma simulação em andamento, oferece continuar
+                    if (progress.isRunning && !progress.isPaused && currentCpfIndex < cpfList.length) {
+                        if (confirm('Foi detectada uma simulação interrompida. Deseja continuar de onde parou?')) {
+                            addLog(`🔄 Continuando simulação do CPF ${currentCpfIndex + 1}...`, 'warning');
+                        } else {
+                            currentCpfIndex = 0;
+                        }
+                    }
+                }
+
+                if (savedCpfList) {
+                    cpfList = JSON.parse(savedCpfList);
+                    cpfListTextarea.value = cpfList.join('\n');
+                }
+
+                if (savedStats) {
+                    stats = JSON.parse(savedStats);
+                    updateStats();
+                }
+            } catch (e) {
+                console.error('Erro ao carregar do localStorage:', e);
+            }
+        }
+
+        // Função para limpar dados salvos
+        function clearStorage() {
+            Object.values(STORAGE_KEYS).forEach(key => {
+                localStorage.removeItem(key);
+            });
+            addLog('🗑️ Dados salvos limpos', 'info');
+        }
+
+        // Função para adicionar log
+        function addLog(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString('pt-BR');
+            const color = {
+                'info': '#00ff00',
+                'error': '#ff0000',
+                'warning': '#ffff00',
+                'success': '#00ff00'
+            }[type] || '#00ff00';
+            
+            logArea.innerHTML += `<span style="color: ${color}">[${timestamp}] ${message}</span><br>`;
+            logArea.scrollTop = logArea.scrollHeight;
+        }
+
+        // Função para atualizar contador de CPFs
+        function updateCpfCount() {
+            const cpfs = cpfListTextarea.value.split('\n').filter(cpf => cpf.trim().length > 0);
+            cpfCount.textContent = cpfs.length;
+            cpfList = cpfs;
+            saveToStorage();
+        }
+
+        // Função para atualizar estatísticas
+        function updateStats() {
+            statTotal.textContent = stats.total;
+            statProcessed.textContent = stats.processed;
+            statSuccess.textContent = stats.success;
+            statErrors.textContent = stats.errors;
+            
+            const progress = stats.total > 0 ? (stats.processed / stats.total) * 100 : 0;
+            progressFill.style.width = progress + '%';
+            
+            saveToStorage();
+        }
+
+        // Função para testar conexão
+        async function testConnection() {
+            try {
+                connectionStatus.className = 'status connecting';
+                connectionStatus.textContent = 'Verificando conexão...';
+                
+                const response = await fetch('/api/test-connection');
+                const data = await response.json();
+                
+                if (data.success) {
+                    connectionStatus.className = 'status connected';
+                    connectionStatus.textContent = 'Conectado';
+                    addLog('✅ Conexão estabelecida com sucesso', 'success');
+                } else {
+                    connectionStatus.className = 'status disconnected';
+                    connectionStatus.textContent = 'Falha na conexão';
+                    addLog('❌ Erro de conexão: ' + data.message, 'error');
+                }
+            } catch (error) {
+                connectionStatus.className = 'status disconnected';
+                connectionStatus.textContent = 'Erro de conexão';
+                addLog('❌ Erro de conexão: ' + error.message, 'error');
+            }
+        }
+
+        // Função para processar um único CPF
+        async function processSingleCpf(cpf, index) {
+            try {
+                addLog(`🔍 Processando CPF ${index + 1}/${stats.total}: ${cpf}`, 'info');
+                
+                const response = await fetch('/api/simulate-single', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ cpf: cpf })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    const result = data.result;
+                    currentResults.push(result);
+                    
+                    // Atualiza estatísticas
+                    stats.processed++;
+                    if (result.status === 'Sucesso') {
+                        stats.success++;
+                        addLog(`✅ CPF ${cpf}: ${result.nome} - ${result.status}`, 'success');
+                    } else {
+                        stats.errors++;
+                        addLog(`❌ CPF ${cpf}: ${result.status}`, 'error');
+                    }
+                    
+                    // Atualiza interface
+                    updateStats();
+                    displayResults(currentResults);
+                    saveToStorage();
+                    
+                    return true;
+                } else {
+                    stats.processed++;
+                    stats.errors++;
+                    
+                    const errorResult = {
+                        cpf: cpf,
+                        status: 'Erro',
+                        nome: data.error || 'Erro desconhecido',
+                        renda: 'N/A',
+                        margem: 'N/A',
+                        elegivel: 'N/A'
+                    };
+                    
+                    currentResults.push(errorResult);
+                    addLog(`❌ CPF ${cpf}: ${data.error}`, 'error');
+                    
+                    updateStats();
+                    displayResults(currentResults);
+                    saveToStorage();
+                    
+                    return false;
+                }
+            } catch (error) {
+                stats.processed++;
+                stats.errors++;
+                
+                const errorResult = {
+                    cpf: cpf,
+                    status: 'Erro',
+                    nome: 'Erro de conexão',
+                    renda: 'N/A',
+                    margem: 'N/A',
+                    elegivel: 'N/A'
+                };
+                
+                currentResults.push(errorResult);
+                addLog(`❌ CPF ${cpf}: Erro de conexão - ${error.message}`, 'error');
+                
+                updateStats();
+                displayResults(currentResults);
+                saveToStorage();
+                
+                return false;
+            }
+        }
+
+        // Função para iniciar simulação progressiva
+        async function startProgressiveSimulation() {
+            try {
+                const cpfs = cpfListTextarea.value.split('\n').filter(cpf => cpf.trim().length > 0);
+                
+                if (cpfs.length === 0) {
+                    addLog('❌ Nenhum CPF fornecido', 'error');
+                    return;
+                }
+
+                // Se não está continuando, reinicia
+                if (currentCpfIndex === 0) {
+                    currentResults = [];
+                    stats = { total: cpfs.length, processed: 0, success: 0, errors: 0 };
+                    resultsTable.innerHTML = '';
+                }
+
+                cpfList = cpfs;
+                isRunning = true;
+                isPaused = false;
+                updateButtons();
+                updateStats();
+                
+                addLog(`🚀 Iniciando simulação progressiva de ${cpfs.length} CPFs...`, 'info');
+                
+                // Processa CPFs um por um
+                for (let i = currentCpfIndex; i < cpfs.length; i++) {
+                    if (!isRunning) {
+                        addLog('⏹️ Simulação interrompida pelo usuário', 'warning');
+                        break;
+                    }
+                    
+                    if (isPaused) {
+                        addLog('⏸️ Simulação pausada', 'warning');
+                        currentCpfIndex = i;
+                        saveToStorage();
+                        return;
+                    }
+                    
+                    currentCpfIndex = i;
+                    await processSingleCpf(cpfs[i].trim(), i);
+                    
+                    // Pequena pausa entre requisições para não sobrecarregar
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                }
+                
+                if (isRunning) {
+                    addLog(`✅ Simulação concluída: ${stats.success} sucessos, ${stats.errors} erros`, 'success');
+                    currentCpfIndex = 0; // Reset para próxima simulação
+                }
+                
+            } catch (error) {
+                addLog('❌ Erro na simulação: ' + error.message, 'error');
+            } finally {
+                isRunning = false;
+                isPaused = false;
+                updateButtons();
+                saveToStorage();
+            }
+        }
+
+        // Função para pausar simulação
+        function pauseSimulation() {
+            if (isRunning) {
+                isPaused = true;
+                addLog('⏸️ Pausando simulação...', 'warning');
+                updateButtons();
+                saveToStorage();
+            }
+        }
+
+        // Função para continuar simulação
+        function resumeSimulation() {
+            if (isPaused) {
+                isPaused = false;
+                addLog('▶️ Continuando simulação...', 'info');
+                startProgressiveSimulation();
+            }
+        }
+
+        // Função para parar simulação
+        function stopSimulation() {
+            isRunning = false;
+            isPaused = false;
+            currentCpfIndex = 0;
+            addLog('⏹️ Simulação interrompida', 'warning');
+            updateButtons();
+            saveToStorage();
+        }
+
+        // Função para exibir resultados
+        function displayResults(results) {
+            resultsTable.innerHTML = '';
+            
+            if (results.length === 0) {
+                resultsTable.innerHTML = `
+                    <tr>
+                        <td colspan="7" style="text-align: center; color: #666; padding: 40px;">
+                            Nenhum resultado ainda. Execute uma simulação para ver os dados.
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            results.forEach((result, index) => {
+                const row = document.createElement('tr');
+                const statusClass = result.status === 'Sucesso' ? 'status-success' : 'status-error';
+                
+                row.innerHTML = `
+                    <td>${result.cpf}</td>
+                    <td>${result.nome || 'N/A'}</td>
+                    <td class="${statusClass}">${result.status}</td>
+                    <td>${result.renda || 'N/A'}</td>
+                    <td>${result.margem || 'N/A'}</td>
+                    <td>${result.elegivel || 'N/A'}</td>
+                    <td>
+                        <button class="btn btn-secondary" style="padding: 5px 10px; font-size: 12px;" onclick="viewDetails(${index})">
+                            👁️ Detalhes
+                        </button>
+                    </td>
+                `;
+                
+                resultsTable.appendChild(row);
+            });
+        }
+
+        // Função para atualizar botões
+        function updateButtons() {
+            btnStart.disabled = isRunning && !isPaused;
+            btnPause.disabled = !isRunning || isPaused;
+            btnStop.disabled = !isRunning && !isPaused;
+            btnSchedule.disabled = isRunning;
+            
+            // Atualiza texto do botão start
+            if (isPaused) {
+                btnStart.textContent = '▶️ Continuar';
+            } else if (currentCpfIndex > 0 && !isRunning) {
+                btnStart.textContent = '🔄 Continuar Simulação';
+            } else {
+                btnStart.textContent = '▶️ Iniciar Simulação';
+            }
+        }
+
+        // Função para exportar Excel
+        function exportExcel() {
+            window.open('/api/export-excel', '_blank');
+            addLog('📊 Exportando dados para Excel...', 'info');
+        }
+
+        // Função para limpar resultados
+        function clearResults() {
+            if (confirm('Tem certeza que deseja limpar todos os resultados?')) {
+                currentResults = [];
+                stats = { total: 0, processed: 0, success: 0, errors: 0 };
+                currentCpfIndex = 0;
+                clearStorage();
+                displayResults([]);
+                updateStats();
+                addLog('🗑️ Resultados limpos', 'info');
+            }
+        }
+
+        // Event listeners
+        cpfListTextarea.addEventListener('input', updateCpfCount);
+        btnStart.addEventListener('click', () => {
+            if (isPaused) {
+                resumeSimulation();
+            } else {
+                startProgressiveSimulation();
+            }
+        });
+        btnPause.addEventListener('click', pauseSimulation);
+        btnStop.addEventListener('click', stopSimulation);
+        btnExport.addEventListener('click', exportExcel);
+
+        // Função para ver detalhes
+        function viewDetails(index) {
+            const result = currentResults[index];
+            if (result && result.raw_data) {
+                alert('Dados completos:\n' + JSON.stringify(result.raw_data, null, 2));
+            } else {
+                alert('Nenhum dado detalhado disponível para este CPF.');
+            }
+        }
+
+        // Adicionar botão de limpar resultados
+        function addClearButton() {
+            const controlsPanel = document.querySelector('.panel:has(#btn-start)');
+            if (controlsPanel) {
+                const clearBtn = document.createElement('button');
+                clearBtn.className = 'btn btn-danger';
+                clearBtn.innerHTML = '🗑️ Limpar Resultados';
+                clearBtn.onclick = clearResults;
+                controlsPanel.appendChild(clearBtn);
+            }
+        }
+
+        // Inicialização
+        document.addEventListener('DOMContentLoaded', function() {
+            addLog('🚀 Sistema iniciado - Ruby/Sinatra com Processamento Progressivo', 'success');
+            loadFromStorage();
+            updateCpfCount();
+            updateStats();
+            updateButtons();
+            testConnection();
+            addClearButton();
+            
+            // Salva automaticamente a cada 30 segundos
+            setInterval(saveToStorage, 30000);
+        });
+    </script>
+</body>
+</html>
+
